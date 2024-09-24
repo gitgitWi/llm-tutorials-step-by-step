@@ -1,5 +1,3 @@
-'use client';
-
 import { HomeIcon } from '@radix-ui/react-icons';
 import { usePathname } from 'next/navigation';
 import { Fragment, useMemo } from 'react';
@@ -25,7 +23,7 @@ export function BreadcrumbHeader({ headerClassName }: BreadcrumbHeaderProps) {
         return {
           // TODO: path → name mapping
           name,
-          href: `/${pathnames.slice(0, idx + 1).join('/')}`,
+          href: `${pathnames.slice(0, idx + 1).join('/')}`,
         };
       }),
     [pathname]
@@ -46,7 +44,7 @@ export function BreadcrumbHeader({ headerClassName }: BreadcrumbHeaderProps) {
             </BreadcrumbLink>
           </BreadcrumbItem>
 
-          {pathsInfo.map(({ name, href }) => (
+          {pathsInfo.slice(0, -1).map(({ name, href }) => (
             <Fragment key={`breadcrumb-item-${name}`}>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -54,6 +52,11 @@ export function BreadcrumbHeader({ headerClassName }: BreadcrumbHeaderProps) {
               </BreadcrumbItem>
             </Fragment>
           ))}
+
+          <BreadcrumbSeparator />
+          <BreadcrumbItem className="cursor-default">
+            {pathsInfo.at(-1)?.name}
+          </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
     </header>
