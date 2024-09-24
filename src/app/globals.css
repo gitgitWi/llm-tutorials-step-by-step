@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 body {
-	font-family: var(--font-geist-mono);
+  font-family: var(--font-geist-mono);
 }
 
 @layer utilities {
-	.text-balance {
-		text-wrap: balance;
-	}
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 @layer base {
-	:root {
-		--radius: 0.5rem;
-	}
+  :root {
+    --radius: 0.5rem;
+  }
 }
