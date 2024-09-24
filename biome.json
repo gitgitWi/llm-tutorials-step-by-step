@@ -23,6 +23,10 @@
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "warn"
+      },
+      "a11y": {
+        "useFocusableInteractive": "warn",
+        "useSemanticElements": "warn"
       }
     }
   },
