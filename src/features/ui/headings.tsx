@@ -43,7 +43,6 @@ export function Heading2({ children, className }: HeadingProps) {
         'text-2xl',
         'font-bold',
         'text-neutral-800',
-        notoSerifKr.className,
         className
       )}
     >
