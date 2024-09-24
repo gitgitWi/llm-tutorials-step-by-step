@@ -1,3 +1,5 @@
+'use client';
+
 import { HomeIcon } from '@radix-ui/react-icons';
 import { usePathname } from 'next/navigation';
 import { Fragment, useMemo } from 'react';
