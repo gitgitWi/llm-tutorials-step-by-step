@@ -1,11 +1,11 @@
 'use client';
 
 import { valibotResolver } from '@hookform/resolvers/valibot';
+import type { TiktokenModel } from 'js-tiktoken';
 import { default as fetcher } from 'ky';
 import { SquareArrowOutUpRightIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { TiktokenModel } from 'tiktoken';
 import { type InferOutput, minLength, object, pipe, string } from 'valibot';
 import { useApiToken } from '~/features/api-token';
 import {

@@ -1,9 +1,7 @@
-import { type TiktokenModel, encoding_for_model } from 'tiktoken';
+import { type TiktokenModel, encodingForModel } from 'js-tiktoken';
 
 export const getEncodedTokens = (text: string, modelName: TiktokenModel) => {
-  const encoder = encoding_for_model(modelName);
+  const encoder = encodingForModel(modelName);
   const tokens = encoder.encode(text);
-  encoder.free();
-
   return tokens;
 };
