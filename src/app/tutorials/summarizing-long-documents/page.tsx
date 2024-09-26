@@ -7,7 +7,7 @@ import { SquareArrowOutUpRightIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type InferOutput, minLength, object, pipe, string } from 'valibot';
-import { useApiToken } from '~/features/api-token';
+import { useApiKey } from '~/features/api-key';
 import { Button } from '~/features/ui/button';
 import {
   Card,
@@ -29,7 +29,7 @@ import { Textarea } from '~/features/ui/textarea';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
-  apiToken: pipe(
+  apiKey: pipe(
     string(),
     minLength(2, 'API 토큰은 최소 2자 이상이어야 합니다.')
   ),
@@ -40,41 +40,74 @@ const SummarizeLongDocFormSchema = object({
   // TODO enum TiktokenModel
   modelName: pipe(string(), minLength(1)),
   delimiter: pipe(string(), minLength(1)),
+  userPrompt: pipe(string(), minLength(1)),
+  // TODO enum Provider
+  provider: pipe(string(), minLength(1)),
 });
 
-type SummarizeLongDocFormSchema = InferOutput<
-  typeof SummarizeLongDocFormSchema
->;
+type SummarizeLongDocForm = InferOutput<typeof SummarizeLongDocFormSchema>;
+
+type SummarizeResponse = {
+  answerMessage: string;
+  tokenUsage: {
+    prompt: number;
+    completion: number;
+    total: number;
+  };
+};
 
 export default function SummarizingLongDocumentsPage() {
-  /** @TODO form -> 전역상태로 저장 */
-  const { apiToken, setApiToken } = useApiToken();
+  const { apiKey, setApiKey } = useApiKey();
 
   // TODO: react-query 사용
   const [encodedTokens, setEncodedTokens] = useState<Record<number, number>>(
     {}
   );
 
-  const [summaryResult, setSummaryResult] = useState<string>('');
-
-  const form = useForm<SummarizeLongDocFormSchema>({
-    resolver: valibotResolver(SummarizeLongDocFormSchema),
-    defaultValues: {
-      apiToken,
-      documentText: '',
-      modelName: 'gpt-4o',
-      delimiter: '\\n',
+  const [isPending, setIsPending] = useState(false);
+  const [summaryResult, setSummaryResult] = useState<SummarizeResponse>({
+    answerMessage: '',
+    tokenUsage: {
+      prompt: 0,
+      completion: 0,
+      total: 0,
     },
   });
 
-  const onSubmit = (data: SummarizeLongDocFormSchema) => {
-    console.debug('[onSubmit.form]', form);
-    console.debug('[onSubmit]', data);
-    setApiToken(data.apiToken);
+  const form = useForm<SummarizeLongDocForm>({
+    resolver: valibotResolver(SummarizeLongDocFormSchema),
+    defaultValues: {
+      apiKey,
+      documentText: '',
+      modelName: 'gpt-4o',
+      delimiter: '\\n',
+      userPrompt: '',
+      provider: 'azure-openai',
+    },
+  });
 
-    // TODO: call OpenAI API through Next.js API
-    fetcher;
-    setSummaryResult;
+  const onSubmit = (data: SummarizeLongDocForm) => {
+    console.debug('[onSubmit]', data);
+    setApiKey(data.apiKey);
+    setIsPending(true);
+    fetcher
+      .post('/api/v1/summary', {
+        json: {
+          provider: data.provider,
+          apiKey: data.apiKey,
+          modelName: data.modelName,
+          userPrompt: data.userPrompt,
+          documentText: data.documentText,
+          delimiter: data.delimiter,
+        },
+      })
+      .json<SummarizeResponse>()
+      .then((response) => {
+        setSummaryResult(response);
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
   };
 
   return (
@@ -107,7 +140,7 @@ export default function SummarizingLongDocumentsPage() {
             <CardContent>
               <FormField
                 control={form.control}
-                name="apiToken"
+                name="apiKey"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -137,10 +170,10 @@ export default function SummarizingLongDocumentsPage() {
                   <FormItem>
                     <FormControl>
                       <Textarea
-                        className="resize-none"
                         {...field}
                         minLength={2}
                         rows={6}
+                        className="resize-none"
                       />
                     </FormControl>
                   </FormItem>
@@ -188,6 +221,7 @@ export default function SummarizingLongDocumentsPage() {
 
               <div className="flex items-center gap-2 mt-4">
                 <Button
+                  type="button"
                   onClick={() => {
                     fetcher
                       .post('/api/v1/encoded-token', {
@@ -198,7 +232,6 @@ export default function SummarizingLongDocumentsPage() {
                       })
                       .json<{ tokens: Record<number, number> }>()
                       .then((res) => {
-                        console.debug('[encodedTokens]', res);
                         res?.tokens && setEncodedTokens(res.tokens);
                       });
                   }}
@@ -244,22 +277,83 @@ export default function SummarizingLongDocumentsPage() {
               <Button type="button" disabled>
                 TODO: Chunk 로 나눠진 텍스트 확인하기
               </Button>
-              <Textarea value={''} rows={1} readOnly className="resize-none" />
+              {/* <Textarea readOnly defaultValue={''} /> */}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <Button type="submit">요약 결과 불러오기</Button>
+              <Heading3>Step6. Set Prompt</Heading3>
             </CardHeader>
 
             <CardContent>
-              <Textarea
-                value={summaryResult}
-                rows={1}
-                readOnly
-                className="resize-none"
+              <FormField
+                control={form.control}
+                name="userPrompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Heading3>Step7. 전체 프롬프트 확인</Heading3>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-2">
+              <pre className="border-neutral-300 bg-neutral-100 p-2 border rounded-lg text-xs whitespace-pre-wrap overflow-auto">
+                {[form.getValues().userPrompt, form.getValues().documentText]
+                  .filter(Boolean)
+                  .join('\n\n---\n')}
+              </pre>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Button
+                type="submit"
+                disabled={
+                  !form.getValues().apiKey ||
+                  !form.getValues().userPrompt ||
+                  isPending
+                }
+              >
+                요약 결과 불러오기
+              </Button>
+            </CardHeader>
+
+            <CardContent>
+              <pre className="border-neutral-300 bg-neutral-100 p-2 border rounded-lg text-xs whitespace-pre-wrap overflow-auto">
+                {summaryResult.answerMessage}
+              </pre>
+
+              <div className="flex flex-col gap-2 my-2">
+                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                  <p>입력(프롬프트) 토큰</p>
+                  <p className="font-medium">
+                    {summaryResult.tokenUsage.prompt}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                  <p>출력(답변) 토큰</p>
+                  <p className="font-medium">
+                    {summaryResult.tokenUsage.completion}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                  <p>전체 토큰</p>
+                  <p className="font-medium">
+                    {summaryResult.tokenUsage.total}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </form>
