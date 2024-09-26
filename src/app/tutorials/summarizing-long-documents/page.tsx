@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type InferOutput, minLength, object, pipe, string } from 'valibot';
 import { useApiToken } from '~/features/api-token';
+import { Button } from '~/features/ui/button';
 import {
   Card,
   CardContent,
@@ -38,6 +39,7 @@ const SummarizeLongDocFormSchema = object({
   ),
   // TODO enum TiktokenModel
   modelName: pipe(string(), minLength(1)),
+  delimiter: pipe(string(), minLength(1)),
 });
 
 type SummarizeLongDocFormSchema = InferOutput<
@@ -53,19 +55,26 @@ export default function SummarizingLongDocumentsPage() {
     {}
   );
 
+  const [summaryResult, setSummaryResult] = useState<string>('');
+
   const form = useForm<SummarizeLongDocFormSchema>({
     resolver: valibotResolver(SummarizeLongDocFormSchema),
     defaultValues: {
       apiToken,
       documentText: '',
       modelName: 'gpt-4o',
+      delimiter: '\\n',
     },
   });
 
-  const onSubmit = async (data: SummarizeLongDocFormSchema) => {
+  const onSubmit = (data: SummarizeLongDocFormSchema) => {
     console.debug('[onSubmit.form]', form);
     console.debug('[onSubmit]', data);
     setApiToken(data.apiToken);
+
+    // TODO: call OpenAI API through Next.js API
+    fetcher;
+    setSummaryResult;
   };
 
   return (
@@ -177,30 +186,80 @@ export default function SummarizingLongDocumentsPage() {
                 )}
               />
 
-              <button
-                type="button"
-                onClick={() => {
-                  fetcher
-                    .post('/api/v1/encoded-token', {
-                      json: {
-                        text: form.getValues().documentText,
-                        modelName: form.getValues().modelName,
-                      },
-                    })
-                    .json<{ tokens: Record<number, number> }>()
-                    .then((res) => {
-                      console.debug('[encodedTokens]', res);
-                      res?.tokens && setEncodedTokens(res.tokens);
-                    });
-                }}
-                disabled={form.getValues().documentText.length === 0}
-              >
-                토큰 갯수 불러오기
-              </button>
+              <div className="flex items-center gap-2 mt-4">
+                <Button
+                  onClick={() => {
+                    fetcher
+                      .post('/api/v1/encoded-token', {
+                        json: {
+                          text: form.getValues().documentText,
+                          modelName: form.getValues().modelName,
+                        },
+                      })
+                      .json<{ tokens: Record<number, number> }>()
+                      .then((res) => {
+                        console.debug('[encodedTokens]', res);
+                        res?.tokens && setEncodedTokens(res.tokens);
+                      });
+                  }}
+                  disabled={form.getValues().documentText.length === 0}
+                >
+                  토큰 갯수 불러오기
+                </Button>
 
-              <div>
                 <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Heading3>Step4. Set Delimiter</Heading3>
+              <CardDescription>
+                구분자 설정 - 어떤 문자를 기준으로 텍스트를 나눌 것인지
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="delimiter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="delimiter" type="text" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Heading3>Step5. Check Chunked Text</Heading3>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-2">
+              <Button type="button" disabled>
+                TODO: Chunk 로 나눠진 텍스트 확인하기
+              </Button>
+              <Textarea value={''} rows={1} readOnly className="resize-none" />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Button type="submit">요약 결과 불러오기</Button>
+            </CardHeader>
+
+            <CardContent>
+              <Textarea
+                value={summaryResult}
+                rows={1}
+                readOnly
+                className="resize-none"
+              />
             </CardContent>
           </Card>
         </form>
