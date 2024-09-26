@@ -13,18 +13,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="ko" className={cn(GeistMono.variable, 'antialiased')}>
-      <body className="bg-neutral-100 pt-4 h-full">
-        <div className="flex flex-col border-3 border-neutral-200 bg-white mx-auto p-4 border rounded-lg max-w-2xl">
+    <html
+      lang="ko"
+      className={cn(GeistMono.variable, 'antialiased', 'h-screen')}
+    >
+      <body className="flex flex-col justify-between min-h-screen pt-4 bg-neutral-100">
+        <div className="flex flex-col w-full max-w-2xl p-4 mx-auto bg-white border rounded-lg border-3 border-neutral-200 h-max">
           {children}
         </div>
 
-        <footer className="flex justify-start items-center gap-1 border-neutral-100 bg-white mx-auto mt-2 px-2 pt-2 border rounded-b-none rounded-lg max-w-2xl">
+        <footer className="flex items-end justify-start w-full max-w-2xl gap-1 px-2 pt-2 mx-auto mt-2 bg-white border rounded-lg rounded-b-none border-neutral-100">
           <a
             href="https://github.com/gitgitWi/llm-tutorials-step-by-step"
             target="_blank"
             rel="noreferrer noopener"
-            className="flex items-center gap-1 text-neutral-500 text-sm hover:underline"
+            className="flex items-end gap-1 text-sm text-neutral-500 hover:underline"
           >
             <GitHubLogoIcon />
           </a>

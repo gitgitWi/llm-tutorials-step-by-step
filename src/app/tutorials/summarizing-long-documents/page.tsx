@@ -119,7 +119,7 @@ export default function SummarizingLongDocumentsPage() {
           href="https://cookbook.openai.com/examples/summarizing_long_documents"
           target="_blank"
           rel="noreferrer noopener"
-          className="flex items-center gap-1 text-neutral-500 text-sm hover:underline"
+          className="flex items-center gap-1 text-sm text-neutral-500 hover:underline"
         >
           <SquareArrowOutUpRightIcon size={16} />
           <p>OpenAI Cookbook - Summarizing Long Documents</p>
@@ -167,16 +167,13 @@ export default function SummarizingLongDocumentsPage() {
                 control={form.control}
                 name="documentText"
                 render={({ field }) => (
+                  <>
                   <FormItem>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        minLength={2}
-                        rows={6}
-                        className="resize-none"
-                      />
+                        <Textarea {...field} minLength={2} className="" />
                     </FormControl>
                   </FormItem>
+                  </>
                 )}
               />
             </CardContent>
@@ -219,7 +216,8 @@ export default function SummarizingLongDocumentsPage() {
                 )}
               />
 
-              <div className="flex items-center gap-2 mt-4">
+              <div className="flex flex-col gap-2 mt-4">
+                <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   onClick={() => {
@@ -330,24 +328,24 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent>
-              <pre className="border-neutral-300 bg-neutral-100 p-2 border rounded-lg text-xs whitespace-pre-wrap overflow-auto">
+              <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
                 {summaryResult.answerMessage}
               </pre>
 
               <div className="flex flex-col gap-2 my-2">
-                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                <div className="flex justify-between gap-2 text-sm text-neutral-500">
                   <p>입력(프롬프트) 토큰</p>
                   <p className="font-medium">
                     {summaryResult.tokenUsage.prompt}
                   </p>
                 </div>
-                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                <div className="flex justify-between gap-2 text-sm text-neutral-500">
                   <p>출력(답변) 토큰</p>
                   <p className="font-medium">
                     {summaryResult.tokenUsage.completion}
                   </p>
                 </div>
-                <div className="flex justify-between gap-2 text-neutral-500 text-sm">
+                <div className="flex justify-between gap-2 text-sm text-neutral-500">
                   <p>전체 토큰</p>
                   <p className="font-medium">
                     {summaryResult.tokenUsage.total}

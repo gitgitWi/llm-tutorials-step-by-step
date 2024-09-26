@@ -2,10 +2,12 @@ import { CaretRightIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { Heading1, Heading2 } from '~/features/ui/headings';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <header>
-      <Heading1>LLM step-by-step</Heading1>
+    <>
+      <header>
+        <Heading1>LLM step-by-step</Heading1>
+      </header>
 
       <section className="">
         <Heading2>Tutorials</Heading2>
@@ -25,6 +27,6 @@ export default function Home() {
           </li>
         </ul>
       </section>
-    </header>
+    </>
   );
 }
