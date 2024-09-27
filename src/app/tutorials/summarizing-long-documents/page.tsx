@@ -176,11 +176,11 @@ export default function SummarizingLongDocumentsPage() {
                 name="documentText"
                 render={({ field }) => (
                   <>
-                  <FormItem>
-                    <FormControl>
+                    <FormItem>
+                      <FormControl>
                         <Textarea {...field} minLength={2} className="" />
-                    </FormControl>
-                  </FormItem>
+                      </FormControl>
+                    </FormItem>
 
                     {field.value && (
                       <p className="mt-2 text-xs text-right text-neutral-500">
@@ -252,8 +252,8 @@ export default function SummarizingLongDocumentsPage() {
                     토큰 갯수 불러오기
                   </Button>
 
-                <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
-              </div>
+                  <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
+                </div>
 
                 <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
                   {Object.entries(encodedTokens)
