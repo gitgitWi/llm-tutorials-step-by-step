@@ -3,7 +3,7 @@
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import type { TiktokenModel } from 'js-tiktoken';
 import { default as fetcher } from 'ky';
-import { SquareArrowOutUpRightIcon } from 'lucide-react';
+import { LoaderIcon, SquareArrowOutUpRightIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -347,7 +347,8 @@ export default function SummarizingLongDocumentsPage() {
                   isPending
                 }
               >
-                요약 결과 불러오기
+                요약 결과 불러오기{' '}
+                {isPending && <LoaderIcon className="animate-spin" />}
               </Button>
             </CardHeader>
 
