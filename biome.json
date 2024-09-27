@@ -20,7 +20,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "suspicious": {},
+      "suspicious": {
+        "noExplicitAny": "warn"
+      },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "warn"
