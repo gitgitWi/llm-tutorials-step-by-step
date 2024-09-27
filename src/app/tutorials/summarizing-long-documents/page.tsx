@@ -218,25 +218,25 @@ export default function SummarizingLongDocumentsPage() {
 
               <div className="flex flex-col gap-2 mt-4">
                 <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    fetcher
-                      .post('/api/v1/encoded-token', {
-                        json: {
-                          text: form.getValues().documentText,
-                          modelName: form.getValues().modelName,
-                        },
-                      })
-                      .json<{ tokens: Record<number, number> }>()
-                      .then((res) => {
-                        res?.tokens && setEncodedTokens(res.tokens);
-                      });
-                  }}
-                  disabled={form.getValues().documentText.length === 0}
-                >
-                  토큰 갯수 불러오기
-                </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      fetcher
+                        .post('/api/v1/encoded-token', {
+                          json: {
+                            text: form.getValues('documentText'),
+                            modelName: form.getValues('modelName'),
+                          },
+                        })
+                        .json<{ tokens: Record<number, number> }>()
+                        .then((res) => {
+                          res?.tokens && setEncodedTokens(res.tokens);
+                        });
+                    }}
+                    disabled={form.watch('documentText').length === 0}
+                  >
+                    토큰 갯수 불러오기
+                  </Button>
 
                 <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
               </div>
@@ -305,8 +305,8 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
-              <pre className="border-neutral-300 bg-neutral-100 p-2 border rounded-lg text-xs whitespace-pre-wrap overflow-auto">
-                {[form.getValues().userPrompt, form.getValues().documentText]
+              <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+                {[form.watch('userPrompt'), form.watch('documentText')]
                   .filter(Boolean)
                   .join('\n\n---\n')}
               </pre>
@@ -318,8 +318,8 @@ export default function SummarizingLongDocumentsPage() {
               <Button
                 type="submit"
                 disabled={
-                  !form.getValues().apiKey ||
-                  !form.getValues().userPrompt ||
+                  !form.watch('apiKey') ||
+                  !form.watch('userPrompt') ||
                   isPending
                 }
               >
