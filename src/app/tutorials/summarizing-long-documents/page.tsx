@@ -246,6 +246,16 @@ export default function SummarizingLongDocumentsPage() {
 
                 <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
               </div>
+
+                <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+                  {Object.entries(encodedTokens)
+                    .sort(
+                      (a, b) => Number.parseInt(a[0]) - Number.parseInt(b[0])
+                    )
+                    .map(([_, value]) => value)
+                    .join(' ')}
+                </pre>
+              </div>
             </CardContent>
           </Card>
 
