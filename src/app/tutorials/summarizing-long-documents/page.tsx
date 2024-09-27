@@ -6,8 +6,16 @@ import { default as fetcher } from 'ky';
 import { SquareArrowOutUpRightIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type InferOutput, minLength, object, pipe, string } from 'valibot';
+import {
+  type InferOutput,
+  enum_,
+  minLength,
+  object,
+  pipe,
+  string,
+} from 'valibot';
 import { useApiKey } from '~/features/api-key';
+import { LlmProviderSelector, LlmProviders } from '~/features/llm-providers';
 import { Button } from '~/features/ui/button';
 import {
   Card,
@@ -29,6 +37,7 @@ import { Textarea } from '~/features/ui/textarea';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
+  provider: enum_(LlmProviders),
   apiKey: pipe(
     string(),
     minLength(2, 'API 토큰은 최소 2자 이상이어야 합니다.')
@@ -41,8 +50,6 @@ const SummarizeLongDocFormSchema = object({
   modelName: pipe(string(), minLength(1)),
   delimiter: pipe(string(), minLength(1)),
   userPrompt: pipe(string(), minLength(1)),
-  // TODO enum Provider
-  provider: pipe(string(), minLength(1)),
 });
 
 type SummarizeLongDocForm = InferOutput<typeof SummarizeLongDocFormSchema>;
@@ -81,8 +88,8 @@ export default function SummarizingLongDocumentsPage() {
       documentText: '',
       modelName: 'gpt-4o',
       delimiter: '\\n',
-      userPrompt: '',
-      provider: 'azure-openai',
+      userPrompt: '아래 문장을 요약해줘',
+      provider: LlmProviders.AZURE_OPENAI,
     },
   });
 
@@ -137,7 +144,8 @@ export default function SummarizingLongDocumentsPage() {
               <CardDescription>API 토큰 입력하기</CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="gap-y-1">
+              <LlmProviderSelector formControl={form.control} />
               <FormField
                 control={form.control}
                 name="apiKey"
