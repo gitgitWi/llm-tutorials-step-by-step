@@ -173,6 +173,12 @@ export default function SummarizingLongDocumentsPage() {
                         <Textarea {...field} minLength={2} className="" />
                     </FormControl>
                   </FormItem>
+
+                    {field.value && (
+                      <p className="mt-2 text-xs text-right text-neutral-500">
+                        총 {field.value.length} 글자
+                      </p>
+                    )}
                   </>
                 )}
               />
