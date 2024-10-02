@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { AzureOpenAI } from 'openai';
 import { array, number, object, parse, pipe, string, transform } from 'valibot';
+import { LlmProviders } from '~/features/llm-providers';
+import { createClient } from '~/features/llm-providers/index.server';
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const {
+    provider = LlmProviders.AZURE_OPENAI,
     apiKey = '',
     modelName = '',
     documentText = '',
@@ -11,6 +13,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     userPrompt = '',
   } = await req.json();
 
+  /** @todo schema validation */
   if (!apiKey) {
     return NextResponse.json({
       error: 'apiKey is required',
@@ -35,12 +38,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     });
   }
 
-  const client = new AzureOpenAI({
-    apiKey,
-    apiVersion: '2024-02-15-preview',
-    endpoint: process.env.AZURE_OPENAI_ENDPOINT || '',
-    deployment: 'gpt-4o',
-  });
+  const client = createClient({ provider, apiKey });
 
   const completionPromise = client.chat.completions.create({
     model: modelName,
