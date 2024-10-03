@@ -268,6 +268,7 @@ export default function SummarizingLongDocumentsPage() {
                             text: form.getValues('documentText'),
                             modelName: form.getValues('modelName'),
                           },
+                          timeout: 60_000,
                         })
                         .json<{ tokens: Record<number, number> }>()
                         .then((res) => {
