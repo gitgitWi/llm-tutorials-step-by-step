@@ -107,7 +107,7 @@ export default function SummarizingLongDocumentsPage() {
           documentText: data.documentText,
           delimiter: data.delimiter,
         },
-        timeout: 60_000,
+        timeout: 300_000,
       })
       .json<SummarizeResponse>()
       .then((response) => {

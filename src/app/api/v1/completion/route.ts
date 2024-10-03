@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { LlmProviders } from '~/features/llm-providers';
 import { createClient } from '~/features/llm-providers/index.server';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const {
