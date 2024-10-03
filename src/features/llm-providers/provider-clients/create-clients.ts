@@ -1,5 +1,6 @@
 import { match } from 'ts-pattern';
 import { LlmProviders } from '~/features/llm-providers/types';
+import { createAnthropicClient } from './anthropic';
 import { createAzureOpenAiClients } from './azure-openai';
 import { createGoogleClient } from './google';
 import { createOpenAiCompatibleClients } from './openai-compatibles';
@@ -35,8 +36,9 @@ export const createClient = ({ provider, apiKey }: CreateClientArgs) => {
       });
     })
     .with({ provider: LlmProviders.ANTHROPIC }, () => {
-      // TODO
-      return;
+      return createAnthropicClient({
+        apiKey,
+      });
     })
     .otherwise(() => {
       throw new Error('[createClient] Invalid ProviderName');

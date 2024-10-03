@@ -43,7 +43,7 @@ export const LLM_PROVIDERS = [
       {
         key: LlmProviders.ANTHROPIC,
         name: 'Anthropic',
-        enabled: false,
+        enabled: true,
       },
     ],
   },
