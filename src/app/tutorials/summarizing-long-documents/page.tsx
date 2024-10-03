@@ -98,7 +98,7 @@ export default function SummarizingLongDocumentsPage() {
     setApiKey(data.apiKey);
     setIsPending(true);
     fetcher
-      .post('/api/v1/summary', {
+      .post('/api/v1/completion', {
         json: {
           provider: data.provider,
           apiKey: data.apiKey,
@@ -222,6 +222,21 @@ export default function SummarizingLongDocumentsPage() {
                           <SelectItem value="gpt-4">GPT-4</SelectItem>
                           <SelectItem value={'gpt-3.5-turbo' as TiktokenModel}>
                             GPT-3.5-Turbo
+                          </SelectItem>
+                          <SelectItem value={'gemma2-9b-it'}>
+                            Gemma 2 9B
+                          </SelectItem>
+                          <SelectItem value={'llama-3.1-70b-versatile'}>
+                            Llama 3.1 70B
+                          </SelectItem>
+                          <SelectItem value={'llama-3.1-8b-instant'}>
+                            Llama 3.1 8B
+                          </SelectItem>
+                          <SelectItem value={'llama-3.2-3b-preview'}>
+                            Llama 3.2 3B (Preview)
+                          </SelectItem>
+                          <SelectItem value={'llama-3.2-1b-preview'}>
+                            Llama 3.2 1B (Preview)
                           </SelectItem>
                         </SelectContent>
                       </Select>
