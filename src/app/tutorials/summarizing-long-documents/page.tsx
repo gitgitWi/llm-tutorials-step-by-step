@@ -391,8 +391,12 @@ export default function SummarizingLongDocumentsPage() {
                       <div className="flex justify-between gap-2 text-sm text-neutral-500 shrink-0">
                         <p className="">
                           {new Date(result.time ?? Date.now()).toLocaleString(
-                            'ko-kr',
-                            { timeZone: 'Asia/Seoul' }
+                            window.navigator.language,
+                            {
+                              timeZone:
+                                Intl.DateTimeFormat().resolvedOptions()
+                                  .timeZone,
+                            }
                           )}
                         </p>
 
