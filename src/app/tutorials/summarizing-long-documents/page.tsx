@@ -59,6 +59,9 @@ type SummarizeResponse = {
     completion: number;
     total: number;
   };
+  userPrompt?: string;
+  modelId?: string;
+  time?: number;
 };
 
 export default function SummarizingLongDocumentsPage() {
@@ -70,14 +73,7 @@ export default function SummarizingLongDocumentsPage() {
   );
 
   const [isPending, setIsPending] = useState(false);
-  const [summaryResult, setSummaryResult] = useState<SummarizeResponse>({
-    answerMessage: '',
-    tokenUsage: {
-      prompt: 0,
-      completion: 0,
-      total: 0,
-    },
-  });
+  const [summaryResults, setSummaryResults] = useState<SummarizeResponse[]>([]);
 
   const form = useForm<SummarizeLongDocForm>({
     resolver: valibotResolver(SummarizeLongDocFormSchema),
@@ -108,7 +104,11 @@ export default function SummarizingLongDocumentsPage() {
       })
       .json<SummarizeResponse>()
       .then((response) => {
-        setSummaryResult(response);
+        const modified: SummarizeResponse = Object.assign({}, response, {
+          time: Date.now(),
+          userPrompt: data.userPrompt,
+        });
+        setSummaryResults((prev) => [modified].concat(prev));
       })
       .finally(() => {
         setIsPending(false);
@@ -281,7 +281,7 @@ export default function SummarizingLongDocumentsPage() {
                   <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
                 </div>
 
-                <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+                <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
                   {Object.entries(encodedTokens)
                     .sort(
                       (a, b) => Number.parseInt(a[0]) - Number.parseInt(b[0])
@@ -355,16 +355,12 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
-              <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+              <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
                 {[form.watch('userPrompt'), form.watch('documentText')]
                   .filter(Boolean)
                   .join('\n\n---\n')}
               </pre>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
               <Button
                 type="submit"
                 disabled={
@@ -374,34 +370,65 @@ export default function SummarizingLongDocumentsPage() {
                 }
               >
                 요약 결과 불러오기{' '}
-                {isPending && <LoaderIcon className="animate-spin" />}
+                {isPending && <LoaderIcon className="animate-spin ml-1" />}
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="w-full">
+            <CardHeader>
+              <Heading3>결과</Heading3>
             </CardHeader>
 
             <CardContent>
-              <pre className="p-2 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
-                {summaryResult.answerMessage}
-              </pre>
+              <div className="flex gap-2 overflow-x-auto min-w-full py-2">
+                {summaryResults.map((result) => (
+                  <div
+                    key={result.time}
+                    className="flex flex-col gap-2 p-2 w-full shrink-0 border rounded-lg border-neutral-300"
+                  >
+                    <div className="flex flex-col gap-2 my-2 w-full shrink-0">
+                      <div className="flex justify-between gap-2 text-sm text-neutral-500 shrink-0">
+                        <p className="">
+                          {new Date(result.time ?? Date.now()).toLocaleString(
+                            'ko-kr',
+                            { timeZone: 'Asia/Seoul' }
+                          )}
+                        </p>
 
-              <div className="flex flex-col gap-2 my-2">
-                <div className="flex justify-between gap-2 text-sm text-neutral-500">
-                  <p>입력(프롬프트) 토큰</p>
-                  <p className="font-medium">
-                    {summaryResult.tokenUsage.prompt}
-                  </p>
-                </div>
-                <div className="flex justify-between gap-2 text-sm text-neutral-500">
-                  <p>출력(답변) 토큰</p>
-                  <p className="font-medium">
-                    {summaryResult.tokenUsage.completion}
-                  </p>
-                </div>
-                <div className="flex justify-between gap-2 text-sm text-neutral-500">
-                  <p>전체 토큰</p>
-                  <p className="font-medium">
-                    {summaryResult.tokenUsage.total}
-                  </p>
-                </div>
+                        <code className="text-xs py-1 px-2 bg-neutral-300 rounded-lg">
+                          {result.modelId ?? ''}
+                        </code>
+                      </div>
+                      <p className="italic border-l-4 border-neutral-500 bg-neutral-200 pl-2">
+                        {result.userPrompt ?? ''}
+                      </p>
+                    </div>
+
+                    <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+                      {result.answerMessage}
+                    </pre>
+
+                    <div className="flex flex-col gap-2 my-2">
+                      <div className="flex justify-between gap-2 text-sm text-neutral-500">
+                        <p>입력(프롬프트) 토큰</p>
+                        <p className="font-medium">
+                          {result.tokenUsage.prompt}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-2 text-sm text-neutral-500">
+                        <p>출력(답변) 토큰</p>
+                        <p className="font-medium">
+                          {result.tokenUsage.completion}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-2 text-sm text-neutral-500">
+                        <p>전체 토큰</p>
+                        <p className="font-medium">{result.tokenUsage.total}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
