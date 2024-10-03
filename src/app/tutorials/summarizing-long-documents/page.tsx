@@ -223,19 +223,25 @@ export default function SummarizingLongDocumentsPage() {
                           <SelectItem value={'gpt-3.5-turbo' as TiktokenModel}>
                             GPT-3.5-Turbo
                           </SelectItem>
-                          <SelectItem value={'gemma2-9b-it'}>
+                          <SelectItem value="gemini-1.5-pro">
+                            Gemini 1.5 Pro
+                          </SelectItem>
+                          <SelectItem value="gemini-1.5-flash">
+                            Gemini 1.5 Flash
+                          </SelectItem>
+                          <SelectItem value="gemma2-9b-it">
                             Gemma 2 9B
                           </SelectItem>
-                          <SelectItem value={'llama-3.1-70b-versatile'}>
+                          <SelectItem value="llama-3.1-70b-versatile">
                             Llama 3.1 70B
                           </SelectItem>
-                          <SelectItem value={'llama-3.1-8b-instant'}>
+                          <SelectItem value="llama-3.1-8b-instant">
                             Llama 3.1 8B
                           </SelectItem>
-                          <SelectItem value={'llama-3.2-3b-preview'}>
+                          <SelectItem value="llama-3.2-3b-preview">
                             Llama 3.2 3B (Preview)
                           </SelectItem>
-                          <SelectItem value={'llama-3.2-1b-preview'}>
+                          <SelectItem value="llama-3.2-1b-preview">
                             Llama 3.2 1B (Preview)
                           </SelectItem>
                         </SelectContent>

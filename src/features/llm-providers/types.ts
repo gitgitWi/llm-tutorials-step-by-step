@@ -33,7 +33,7 @@ export const LLM_PROVIDERS = [
       {
         key: LlmProviders.GOOGLE_AI,
         name: 'Google AI',
-        enabled: false,
+        enabled: true,
       },
     ],
   },
