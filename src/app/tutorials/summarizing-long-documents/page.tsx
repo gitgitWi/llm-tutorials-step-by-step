@@ -223,6 +223,12 @@ export default function SummarizingLongDocumentsPage() {
                           <SelectItem value={'gpt-3.5-turbo' as TiktokenModel}>
                             GPT-3.5-Turbo
                           </SelectItem>
+                          <SelectItem value="claude-3-5-sonnet-20240620">
+                            Claude 3.5 Sonnet
+                          </SelectItem>
+                          <SelectItem value="claude-3-haiku-20240307">
+                            Claude 3 Haiku
+                          </SelectItem>
                           <SelectItem value="gemini-1.5-pro">
                             Gemini 1.5 Pro
                           </SelectItem>
