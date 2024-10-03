@@ -1,15 +1,14 @@
-import { AzureOpenAI } from 'openai';
+import { createAzure } from '@ai-sdk/azure';
 import type { CreateClientArgs } from './types';
 
-const API_VERSION = '2024-02-15-preview';
 const API_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || '';
-const MODEL = 'gpt-4o';
 
-export const createAzureOpenAiClients = ({ apiKey }: CreateClientArgs) => {
-  return new AzureOpenAI({
+export const createAzureOpenAiClients = ({
+  apiKey,
+  baseUrl,
+}: CreateClientArgs) => {
+  return createAzure({
     apiKey,
-    apiVersion: API_VERSION,
-    endpoint: API_ENDPOINT,
-    deployment: MODEL,
+    baseURL: baseUrl || API_ENDPOINT,
   });
 };

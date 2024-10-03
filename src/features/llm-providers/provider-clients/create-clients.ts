@@ -23,12 +23,14 @@ export const createClient = ({ provider, apiKey }: CreateClientArgs) => {
     })
     .with({ provider: LlmProviders.GROQ }, () => {
       return createOpenAiCompatibleClients({
+        provider: LlmProviders.GROQ,
         baseUrl: API_ENDPOINTS.GROQ,
         apiKey,
       });
     })
     .with({ provider: LlmProviders.OPENAI }, () => {
       return createOpenAiCompatibleClients({
+        provider: LlmProviders.OPENAI,
         apiKey,
       });
     })
