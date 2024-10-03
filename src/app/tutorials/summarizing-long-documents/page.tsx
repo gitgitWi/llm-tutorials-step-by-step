@@ -43,10 +43,7 @@ const SummarizeLongDocFormSchema = object({
     string(),
     minLength(2, 'API 토큰은 최소 2자 이상이어야 합니다.')
   ),
-  documentText: pipe(
-    string(),
-    minLength(2, '문서 텍스트는 최소 2자 이상이어야 합니다.')
-  ),
+  documentText: string(),
   // TODO enum TiktokenModel
   modelName: pipe(string(), minLength(1)),
   delimiter: pipe(string(), minLength(1)),
@@ -179,7 +176,7 @@ export default function SummarizingLongDocumentsPage() {
                   <>
                     <FormItem>
                       <FormControl>
-                        <Textarea {...field} minLength={2} className="" />
+                        <Textarea {...field} className="" />
                       </FormControl>
                     </FormItem>
 

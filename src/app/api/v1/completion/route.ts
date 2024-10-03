@@ -29,12 +29,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     });
   }
 
-  if (!documentText) {
-    return NextResponse.json({
-      error: 'documentText is required',
-    });
-  }
-
   if (!delimiter) {
     return NextResponse.json({
       error: 'delimiter is required',
@@ -60,6 +54,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         completion: result.usage.completionTokens,
         total: result.usage.totalTokens,
       },
+      modelId: result.response.modelId,
     });
   });
 }
