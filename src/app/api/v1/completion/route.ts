@@ -3,7 +3,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { LlmProviders } from '~/features/llm-providers';
 import { createClient } from '~/features/llm-providers/index.server';
 
-export const maxDuration = 300;
+/** @description 1~60s for hobby plan */
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const {
