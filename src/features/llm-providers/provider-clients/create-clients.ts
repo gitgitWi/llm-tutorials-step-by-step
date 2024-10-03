@@ -1,17 +1,12 @@
 import { match } from 'ts-pattern';
 import { LlmProviders } from '~/features/llm-providers/types';
 import { createAzureOpenAiClients } from './azure-openai';
+import { createGoogleClient } from './google';
 import { createOpenAiCompatibleClients } from './openai-compatibles';
 import type { CreateClientArgs } from './types';
 
 const API_ENDPOINTS = {
   GROQ: 'https://api.groq.com/openai/v1',
-} as const;
-
-// TODO
-const GOOGLE_VERTEXT_AI_CONSTANTS = {
-  LOCATION: '',
-  PROJECT_ID: '',
 } as const;
 
 export const createClient = ({ provider, apiKey }: CreateClientArgs) => {
@@ -35,10 +30,8 @@ export const createClient = ({ provider, apiKey }: CreateClientArgs) => {
       });
     })
     .with({ provider: LlmProviders.GOOGLE_AI }, () => {
-      const baseUrl = `https://${GOOGLE_VERTEXT_AI_CONSTANTS.LOCATION}-aiplatform.googleapis.com/v1beta1/projects/${GOOGLE_VERTEXT_AI_CONSTANTS.PROJECT_ID}/locations/${GOOGLE_VERTEXT_AI_CONSTANTS.LOCATION}/endpoints/openapi`;
-      return createOpenAiCompatibleClients({
+      return createGoogleClient({
         apiKey,
-        baseUrl,
       });
     })
     .with({ provider: LlmProviders.ANTHROPIC }, () => {
