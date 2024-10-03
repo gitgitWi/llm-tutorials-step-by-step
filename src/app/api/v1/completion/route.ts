@@ -39,6 +39,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const client = createClient({ provider, apiKey });
+  if (!client) {
+    return NextResponse.json({
+      error: 'Provider is invalid',
+    });
+  }
 
   const completionPromise = client.chat.completions.create({
     model: modelName,
