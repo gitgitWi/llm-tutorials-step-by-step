@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from '~/features/ui/select';
 import { Textarea } from '~/features/ui/textarea';
+import { exampleDocument } from './example-document';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
@@ -85,16 +86,15 @@ export default function SummarizingLongDocumentsPage() {
     resolver: valibotResolver(SummarizeLongDocFormSchema),
     defaultValues: {
       apiKey,
-      documentText: '',
+      documentText: exampleDocument,
       modelName: 'gpt-4o',
       delimiter: '\\n',
-      userPrompt: '아래 문장을 요약해줘',
+      userPrompt: '아래 글을 한국어로 요약해줘',
       provider: LlmProviders.AZURE_OPENAI,
     },
   });
 
   const onSubmit = (data: SummarizeLongDocForm) => {
-    console.debug('[onSubmit]', data);
     setApiKey(data.apiKey);
     setIsPending(true);
     fetcher
