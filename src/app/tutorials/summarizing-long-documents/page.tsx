@@ -36,6 +36,7 @@ import {
 } from '~/features/ui/select';
 import { Textarea } from '~/features/ui/textarea';
 import { exampleDocument } from './example-document';
+import { useChunking } from './use-chunking';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
@@ -87,6 +88,8 @@ export default function SummarizingLongDocumentsPage() {
       provider: LlmProviders.AZURE_OPENAI,
     },
   });
+
+  const { setChunkedTexts, chunks } = useChunking();
 
   const onSubmit = (data: SummarizeLongDocForm) => {
     setApiKey(data.apiKey);
@@ -154,6 +157,7 @@ export default function SummarizingLongDocumentsPage() {
                       <Input
                         placeholder="API Token"
                         type="password"
+                        autoComplete="current-password"
                         {...field}
                       />
                     </FormControl>
@@ -257,7 +261,7 @@ export default function SummarizingLongDocumentsPage() {
               />
 
               <div className="flex flex-col gap-2 mt-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <Button
                     type="button"
                     onClick={() => {
@@ -296,13 +300,15 @@ export default function SummarizingLongDocumentsPage() {
 
           <Card>
             <CardHeader>
-              <Heading3>Step4. Set Delimiter</Heading3>
+              <Heading3>
+                Step4. 구분자(delimiter) 설정 및 청크로 나누기
+              </Heading3>
               <CardDescription>
-                구분자 설정 - 어떤 문자를 기준으로 텍스트를 나눌 것인지
+                - 구분자 설정: 어떤 문자열을 기준으로 텍스트를 나눌 것인지
               </CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="flex flex-col gap-2">
               <FormField
                 control={form.control}
                 name="delimiter"
@@ -314,19 +320,29 @@ export default function SummarizingLongDocumentsPage() {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <Heading3>Step5. Check Chunked Text</Heading3>
-            </CardHeader>
-
-            <CardContent className="flex flex-col gap-2">
-              <Button type="button" disabled>
-                TODO: Chunk 로 나눠진 텍스트 확인하기
+              <Button
+                type="button"
+                disabled={form.watch('delimiter').length === 0}
+                onClick={() => {
+                  setChunkedTexts(
+                    form.watch('documentText'),
+                    form.watch('delimiter')
+                  );
+                }}
+              >
+                Chunk 로 나눠진 텍스트 확인하기
               </Button>
-              {/* <Textarea readOnly defaultValue={''} /> */}
+              <ResultText className="flex flex-col gap-y-2">
+                {chunks.map((chunk, idx) => (
+                  <p
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={`chunked-${idx}`}
+                    className="p-2 rounded-lg border border-neutral-300"
+                  >
+                    {chunk}
+                  </p>
+                ))}
+              </ResultText>
             </CardContent>
           </Card>
 
