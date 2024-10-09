@@ -26,6 +26,7 @@ import {
 import { Form, FormControl, FormField, FormItem } from '~/features/ui/form';
 import { Heading2, Heading3 } from '~/features/ui/headings';
 import { Input } from '~/features/ui/input';
+import { ResultText } from '~/features/ui/result-text';
 import {
   Select,
   SelectContent,
@@ -281,14 +282,14 @@ export default function SummarizingLongDocumentsPage() {
                   <p>토큰 갯수: {Object.keys(encodedTokens).length}</p>
                 </div>
 
-                <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+                <ResultText>
                   {Object.entries(encodedTokens)
                     .sort(
                       (a, b) => Number.parseInt(a[0]) - Number.parseInt(b[0])
                     )
                     .map(([_, value]) => value)
                     .join(' ')}
-                </pre>
+                </ResultText>
               </div>
             </CardContent>
           </Card>
@@ -355,11 +356,11 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
-              <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
+              <ResultText>
                 {[form.watch('userPrompt'), form.watch('documentText')]
                   .filter(Boolean)
                   .join('\n\n---\n')}
-              </pre>
+              </ResultText>
 
               <Button
                 type="submit"
@@ -409,9 +410,7 @@ export default function SummarizingLongDocumentsPage() {
                       </p>
                     </div>
 
-                    <pre className="p-4 overflow-auto text-xs whitespace-pre-wrap border rounded-lg border-neutral-300 bg-neutral-100 min-h-32 max-h-[600px]">
-                      {result.answerMessage}
-                    </pre>
+                    <ResultText>{result.answerMessage}</ResultText>
 
                     <div className="flex flex-col gap-2 my-2">
                       <div className="flex justify-between gap-2 text-sm text-neutral-500">
