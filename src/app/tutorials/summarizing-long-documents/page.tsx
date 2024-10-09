@@ -95,8 +95,13 @@ export default function SummarizingLongDocumentsPage() {
   });
 
   const { setChunkedTexts, chunks } = useChunking();
-  const { combineChunks, combinedChunks, isPendingCombiningChunks } =
-    useCombiningChunks();
+  const {
+    maxTokens,
+    setMaxTokens,
+    combineChunks,
+    combinedChunks,
+    isPendingCombiningChunks,
+  } = useCombiningChunks();
 
   const onSubmit = (data: SummarizeLongDocForm) => {
     setApiKey(data.apiKey);
@@ -384,10 +389,17 @@ export default function SummarizingLongDocumentsPage() {
 
           <Card>
             <CardHeader>
-              <Heading3>Step. Chunk를 특정 길이로 다시 합치기</Heading3>
+              <Heading3>
+                Step. Chunk를 특정 길이(max-token)로 다시 합치기
+              </Heading3>
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
+              <Input
+                type="number"
+                value={maxTokens}
+                onChange={(e) => setMaxTokens(Number(e.target.value))}
+              />
               <Button
                 type="button"
                 disabled={
@@ -397,7 +409,7 @@ export default function SummarizingLongDocumentsPage() {
                 }
                 onClick={() => {
                   combineChunks({
-                    chunks: chunks,
+                    chunks,
                     delimiter: form.watch('delimiter'),
                     modelName: form.watch('modelName'),
                   });
@@ -415,16 +427,16 @@ export default function SummarizingLongDocumentsPage() {
                     // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                     key={`combined-chunk-${idx}`}
                     className={cn('flex flex-col gap-y-1', {
-                      'border-yellow-400': tokens >= 300,
-                      'border-red-400': tokens >= 500,
+                      'border-yellow-400': tokens >= maxTokens * 0.8,
+                      'border-red-400': tokens >= maxTokens * 0.9,
                     })}
                   >
                     <code
                       className={cn(
                         'bg-neutral-300 rounded-md w-max px-2 py-1 text-xs text-white',
                         {
-                          'text-yellow-400': tokens >= 300,
-                          'text-red-600 font-bold': tokens >= 500,
+                          'text-yellow-400': tokens >= maxTokens * 0.8,
+                          'text-red-600 font-bold': tokens >= maxTokens * 0.9,
                         }
                       )}
                     >
