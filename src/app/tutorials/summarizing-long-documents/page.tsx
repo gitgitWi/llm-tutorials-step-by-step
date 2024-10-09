@@ -36,9 +36,11 @@ import {
   SelectValue,
 } from '~/features/ui/select';
 import { Textarea } from '~/features/ui/textarea';
+import { cn } from '~/lib/utils';
 import { exampleDocument } from './example-document';
 import { GPT_MODEL_NAMES, requestTokenize } from './request-tokenize';
 import { useChunking } from './use-chunking';
+import { useCombiningChunks } from './use-combining-chunks';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
@@ -92,6 +94,8 @@ export default function SummarizingLongDocumentsPage() {
   });
 
   const { setChunkedTexts, chunks } = useChunking();
+  const { combineChunks, combinedChunks, isPendingCombiningChunks } =
+    useCombiningChunks();
 
   const onSubmit = (data: SummarizeLongDocForm) => {
     setApiKey(data.apiKey);
@@ -347,6 +351,61 @@ export default function SummarizingLongDocumentsPage() {
                     key={`chunked-${idx}`}
                   >
                     {chunk}
+                  </ResultTextChunk>
+                ))}
+              </ResultText>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Heading3>Step. Chunk를 특정 길이로 다시 합치기</Heading3>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-2">
+              <Button
+                type="button"
+                disabled={
+                  isPendingCombiningChunks ||
+                  form.watch('delimiter').length === 0 ||
+                  form.watch('documentText').length === 0
+                }
+                onClick={() => {
+                  combineChunks({
+                    chunks: chunks,
+                    delimiter: form.watch('delimiter'),
+                    modelName: form.watch('modelName'),
+                  });
+                }}
+              >
+                Start
+                {isPendingCombiningChunks && (
+                  <LoaderIcon className="animate-spin ml-1" />
+                )}
+              </Button>
+
+              <ResultText className="flex flex-col gap-y-2">
+                {combinedChunks.map(({ chunk, tokens }, idx) => (
+                  <ResultTextChunk
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={`combined-chunk-${idx}`}
+                    className={cn('flex flex-col gap-y-1', {
+                      'border-yellow-400': tokens >= 300,
+                      'border-red-400': tokens >= 500,
+                    })}
+                  >
+                    <code
+                      className={cn(
+                        'bg-neutral-300 rounded-md w-max px-2 py-1 text-xs text-white',
+                        {
+                          'text-yellow-400': tokens >= 300,
+                          'text-red-600 font-bold': tokens >= 500,
+                        }
+                      )}
+                    >
+                      {tokens}
+                    </code>
+                    <span>{chunk}</span>
                   </ResultTextChunk>
                 ))}
               </ResultText>
