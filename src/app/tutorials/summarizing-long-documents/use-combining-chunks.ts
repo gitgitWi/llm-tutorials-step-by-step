@@ -130,5 +130,10 @@ const _combineChunks = async ({
     }
   }
 
-  return { tokensOfChunks: tokensOfChunksAdjusted, combinedChunks };
+  return {
+    tokensOfChunks: tokensOfChunksAdjusted,
+    combinedChunks: combinedChunks.filter(
+      ({ chunk }) => chunk.trim().length > 0
+    ),
+  };
 };
