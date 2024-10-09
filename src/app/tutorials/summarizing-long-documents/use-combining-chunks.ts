@@ -17,8 +17,10 @@ type CombinedChunk = {
   chunk: string;
 };
 
+const MAX_TOKENS_DEFAULT = 1_000;
+
 export const useCombiningChunks = () => {
-  const [maxTokens, setMaxTokens] = useState(500);
+  const [maxTokens, setMaxTokens] = useState(MAX_TOKENS_DEFAULT);
   const [combinedChunks, setCombinedChunks] = useState<
     { tokens: number; chunk: string }[]
   >([]);
@@ -51,6 +53,7 @@ export const useCombiningChunks = () => {
     combineChunks,
     combinedChunks,
     isPendingCombiningChunks,
+    maxTokens,
     setMaxTokens,
   };
 };
@@ -60,7 +63,7 @@ const delimiterSecondary = '.';
 const _combineChunks = async ({
   chunks,
   delimiter,
-  maxTokens = 500,
+  maxTokens = MAX_TOKENS_DEFAULT,
   modelName = GPT_MODEL_NAMES.GPT_35_TURBO,
 }: CombineChunksArgs) => {
   const modelAdjusted = adjustModelName(modelName);
