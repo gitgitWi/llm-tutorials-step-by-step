@@ -83,7 +83,7 @@ export default function SummarizingLongDocumentsPage() {
       apiKey,
       documentText: exampleDocument,
       modelName: 'gpt-4o',
-      delimiter: '\\n',
+      delimiter: '',
       userPrompt: '아래 글을 한국어로 요약해줘',
       provider: LlmProviders.AZURE_OPENAI,
     },
@@ -315,7 +315,19 @@ export default function SummarizingLongDocumentsPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="delimiter" type="text" {...field} />
+                      <Input
+                        placeholder="delimiter"
+                        type="text"
+                        onKeyUp={(e) => {
+                          if (e.key === 'Enter') {
+                            setChunkedTexts(
+                              form.watch('documentText'),
+                              form.watch('delimiter')
+                            );
+                          }
+                        }}
+                        {...field}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
