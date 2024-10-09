@@ -15,9 +15,38 @@ export const requestTokenize = async ({
     .post(TOKENIZE_API_URL, {
       json: {
         text,
-        modelName,
+        modelName: adjustModelName(modelName),
       },
-      timeout: 60_000,
+      timeout: 600_000,
     })
     .json<{ tokens: Record<number, number> }>();
+};
+
+/** @todo create global constants for all models */
+export const GPT_MODEL_NAMES = {
+  GPT_4O_MINI: 'gpt-4o-mini',
+  GPT_4O: 'gpt-4o',
+  GPT_4_TURBO: 'gpt-4-turbo',
+  GPT_4: 'gpt-4',
+  GPT_35_TURBO: 'gpt-3.5-turbo',
+} as const;
+
+export const adjustModelName = (modelName: string) => {
+  if (modelName.startsWith(GPT_MODEL_NAMES.GPT_4O_MINI)) {
+    return GPT_MODEL_NAMES.GPT_4O_MINI;
+  }
+
+  if (modelName.startsWith(GPT_MODEL_NAMES.GPT_4O)) {
+    return GPT_MODEL_NAMES.GPT_4O;
+  }
+
+  if (modelName.startsWith(GPT_MODEL_NAMES.GPT_4_TURBO)) {
+    return GPT_MODEL_NAMES.GPT_4_TURBO;
+  }
+
+  if (modelName.startsWith(GPT_MODEL_NAMES.GPT_4)) {
+    return GPT_MODEL_NAMES.GPT_4;
+  }
+
+  return GPT_MODEL_NAMES.GPT_35_TURBO;
 };

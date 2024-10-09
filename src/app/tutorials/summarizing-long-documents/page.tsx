@@ -37,8 +37,8 @@ import {
 } from '~/features/ui/select';
 import { Textarea } from '~/features/ui/textarea';
 import { exampleDocument } from './example-document';
+import { GPT_MODEL_NAMES, requestTokenize } from './request-tokenize';
 import { useChunking } from './use-chunking';
-import { requestTokenize } from './request-tokenize';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
@@ -84,7 +84,7 @@ export default function SummarizingLongDocumentsPage() {
     defaultValues: {
       apiKey,
       documentText: exampleDocument,
-      modelName: 'gpt-4o',
+      modelName: GPT_MODEL_NAMES.GPT_4O,
       delimiter: '',
       userPrompt: '아래 글을 한국어로 요약해줘',
       provider: LlmProviders.AZURE_OPENAI,
