@@ -438,10 +438,29 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
-              <ResultText>
-                {[form.watch('userPrompt'), form.watch('documentText')]
-                  .filter(Boolean)
-                  .join('\n\n---\n')}
+              <div>
+                <p>총 요청 수: {combinedChunks.length}</p>
+              </div>
+
+              <ResultText className="flex flex-col gap-y-2">
+                {combinedChunks.map(({ chunk }, idx) => (
+                  <ResultTextChunk
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={`combined-chunk-${idx}`}
+                    className="flex flex-col gap-y-1"
+                  >
+                    <code
+                      className={cn(
+                        'bg-neutral-300 rounded-md w-max px-2 py-1 text-white'
+                      )}
+                    >
+                      {idx + 1}
+                    </code>
+                    <span>
+                      {[form.watch('userPrompt'), chunk].join('\n\n---\n')}
+                    </span>
+                  </ResultTextChunk>
+                ))}
               </ResultText>
 
               <Button
