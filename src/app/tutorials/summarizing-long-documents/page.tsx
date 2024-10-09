@@ -27,6 +27,7 @@ import { Form, FormControl, FormField, FormItem } from '~/features/ui/form';
 import { Heading2, Heading3 } from '~/features/ui/headings';
 import { Input } from '~/features/ui/input';
 import { ResultText } from '~/features/ui/result-text';
+import { ResultTextChunk } from '~/features/ui/result-text-chunk';
 import {
   Select,
   SelectContent,
@@ -341,13 +342,12 @@ export default function SummarizingLongDocumentsPage() {
               </Button>
               <ResultText className="flex flex-col gap-y-2">
                 {chunks.map((chunk, idx) => (
-                  <p
+                  <ResultTextChunk
                     // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                     key={`chunked-${idx}`}
-                    className="p-2 rounded-lg border border-neutral-300"
                   >
                     {chunk}
-                  </p>
+                  </ResultTextChunk>
                 ))}
               </ResultText>
             </CardContent>
