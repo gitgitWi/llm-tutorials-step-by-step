@@ -80,6 +80,7 @@ export default function SummarizingLongDocumentsPage() {
 
   const [isPending, setIsPending] = useState(false);
   const [summaryResults, setSummaryResults] = useState<SummarizeResponse[]>([]);
+  const [summaryDuration, setSummaryDuration] = useState(0);
 
   const form = useForm<SummarizeLongDocForm>({
     resolver: valibotResolver(SummarizeLongDocFormSchema),
@@ -100,29 +101,52 @@ export default function SummarizingLongDocumentsPage() {
   const onSubmit = (data: SummarizeLongDocForm) => {
     setApiKey(data.apiKey);
     setIsPending(true);
-    fetcher
-      .post('/api/v1/completion', {
-        json: {
-          provider: data.provider,
-          apiKey: data.apiKey,
-          modelName: data.modelName,
-          userPrompt: data.userPrompt,
-          documentText: data.documentText,
-          delimiter: data.delimiter,
+
+    const summaryLength = combinedChunks.length;
+    setSummaryResults(
+      Array.from({ length: summaryLength }, (_, idx) => ({
+        answerMessage: `${idx + 1}번 요약 결과를 기다리는 중입니다...`,
+        tokenUsage: {
+          prompt: 0,
+          completion: 0,
+          total: 0,
         },
-        timeout: 300_000,
-      })
-      .json<SummarizeResponse>()
-      .then((response) => {
-        const modified: SummarizeResponse = Object.assign({}, response, {
-          time: Date.now(),
-          userPrompt: data.userPrompt,
-        });
-        setSummaryResults((prev) => [modified].concat(prev));
-      })
-      .finally(() => {
-        setIsPending(false);
-      });
+      }))
+    );
+    const start = Date.now();
+    setSummaryDuration(0);
+
+    Promise.all(
+      combinedChunks.map(({ chunk }, idx) =>
+        fetcher
+          .post('/api/v1/completion', {
+            json: {
+              provider: data.provider,
+              apiKey: data.apiKey,
+              modelName: data.modelName,
+              userPrompt: data.userPrompt,
+              documentText: chunk,
+              delimiter: data.delimiter,
+            },
+            timeout: 300_000,
+          })
+          .json<SummarizeResponse>()
+          .then((response) => {
+            const modified: SummarizeResponse = Object.assign({}, response, {
+              time: Date.now(),
+              userPrompt: data.userPrompt,
+            });
+            setSummaryResults((prev) => {
+              const copied = prev.slice();
+              copied[idx] = modified;
+              return copied;
+            });
+          })
+      )
+    ).finally(() => {
+      setSummaryDuration(Date.now() - start);
+      setIsPending(false);
+    });
   };
 
   return (
@@ -271,6 +295,7 @@ export default function SummarizingLongDocumentsPage() {
                   <Button
                     type="button"
                     onClick={() => {
+                      setEncodedTokens({});
                       requestTokenize({
                         text: form.watch('documentText'),
                         modelName: form.watch('modelName'),
@@ -483,7 +508,10 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent>
-              <div className="flex gap-2 overflow-x-auto min-w-full py-2">
+              <h4 className="my-1 text-lg ">
+                소요시간: {summaryDuration / 1_000}초
+              </h4>
+              <div className="flex flex-col gap-2 py-2">
                 {summaryResults.map((result) => (
                   <div
                     key={result.time}
@@ -503,7 +531,7 @@ export default function SummarizingLongDocumentsPage() {
                         </p>
 
                         <code className="text-xs py-1 px-2 bg-neutral-300 rounded-lg">
-                          {result.modelId ?? ''}
+                          {form.watch('modelName')}
                         </code>
                       </div>
                       <p className="italic border-l-4 border-neutral-500 bg-neutral-200 pl-2">
