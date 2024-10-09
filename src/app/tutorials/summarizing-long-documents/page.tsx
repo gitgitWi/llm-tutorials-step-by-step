@@ -37,6 +37,7 @@ import {
 import { Textarea } from '~/features/ui/textarea';
 import { exampleDocument } from './example-document';
 import { useChunking } from './use-chunking';
+import { requestTokenize } from './request-tokenize';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
@@ -265,18 +266,12 @@ export default function SummarizingLongDocumentsPage() {
                   <Button
                     type="button"
                     onClick={() => {
-                      fetcher
-                        .post('/api/v1/encoded-token', {
-                          json: {
-                            text: form.getValues('documentText'),
-                            modelName: form.getValues('modelName'),
-                          },
-                          timeout: 60_000,
-                        })
-                        .json<{ tokens: Record<number, number> }>()
-                        .then((res) => {
-                          res?.tokens && setEncodedTokens(res.tokens);
-                        });
+                      requestTokenize({
+                        text: form.watch('documentText'),
+                        modelName: form.watch('modelName'),
+                      }).then((res) => {
+                        res?.tokens && setEncodedTokens(res.tokens);
+                      });
                     }}
                     disabled={form.watch('documentText').length === 0}
                   >
