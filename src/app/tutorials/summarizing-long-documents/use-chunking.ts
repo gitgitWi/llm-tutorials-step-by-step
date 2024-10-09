@@ -21,6 +21,6 @@ const getChunks = (text: string, delimiter: string) => {
 
   return text
     .split(delimiterAdjusted)
-    .filter(Boolean)
-    .map((text) => text.trim());
+    .map((text) => text.trim())
+    .filter(Boolean);
 };
