@@ -1,23 +1,10 @@
 import { useCallback, useState } from 'react';
-import {
-  GPT_MODEL_NAMES,
-  adjustModelName,
-  requestTokenize,
-} from './request-tokenize';
-
-type CombineChunksArgs = {
-  chunks: string[];
-  delimiter: string;
-  maxTokens?: number;
-  modelName?: string;
-};
-
-type CombinedChunk = {
-  tokens: number;
-  chunk: string;
-};
+import type { ChunkCombinationRequest } from './chunk-combination.types';
+import { fetchChunkCombinations } from './fetch-chunk-combinations';
+import { adjustModelName } from './request-tokenize';
 
 const MAX_TOKENS_DEFAULT = 1_000;
+export const GROUP_SIZE = 50;
 
 export const useCombiningChunks = () => {
   const [maxTokens, setMaxTokens] = useState(MAX_TOKENS_DEFAULT);
@@ -26,25 +13,40 @@ export const useCombiningChunks = () => {
   >([]);
   const [isPendingCombiningChunks, setIsPendingCombiningChunks] =
     useState(false);
+  const [combinationProceed, setCombinationProceed] = useState(0);
 
   const combineChunks = useCallback(
-    async (args: CombineChunksArgs) => {
+    async (args: ChunkCombinationRequest) => {
+      const modelAdjusted = adjustModelName(args.modelName ?? '');
+      const delimiterAdjusted =
+        args.delimiter === '\\n' ? '\n' : args.delimiter;
+
+      setCombinationProceed(0);
       setIsPendingCombiningChunks(true);
       setCombinedChunks([]);
 
-      _combineChunks(
-        Object.assign({}, args, {
-          maxTokens,
-          /** @todo extract as util */
-          delimiter: args.delimiter === '\\n' ? '\n' : args.delimiter,
-        })
-      )
-        .then(({ combinedChunks }) => {
-          setCombinedChunks(combinedChunks);
-        })
-        .finally(() => {
-          setIsPendingCombiningChunks(false);
-        });
+      const requestNums = Math.ceil(args.chunks.length / GROUP_SIZE);
+      const requestGroups = Array.from({ length: requestNums }, (_, i) => {
+        const start = i * GROUP_SIZE;
+        return args.chunks.slice(start, start + GROUP_SIZE);
+      });
+
+      try {
+        for await (const group of requestGroups) {
+          const { combinedChunks } = await fetchChunkCombinations({
+            chunks: group,
+            modelName: modelAdjusted,
+            maxTokens,
+            delimiter: delimiterAdjusted,
+          });
+          setCombinedChunks((prev) => prev.concat(combinedChunks));
+          setCombinationProceed((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsPendingCombiningChunks(false);
+      }
     },
     [maxTokens]
   );
@@ -55,88 +57,6 @@ export const useCombiningChunks = () => {
     isPendingCombiningChunks,
     maxTokens,
     setMaxTokens,
-  };
-};
-
-const delimiterSecondary = '.';
-
-const _combineChunks = async ({
-  chunks,
-  delimiter,
-  maxTokens = MAX_TOKENS_DEFAULT,
-  modelName = GPT_MODEL_NAMES.GPT_35_TURBO,
-}: CombineChunksArgs) => {
-  const modelAdjusted = adjustModelName(modelName);
-
-  const tokensOfChunks = await Promise.all(
-    chunks.map((chunk) =>
-      requestTokenize({ text: chunk, modelName: modelAdjusted }).then(
-        (res) =>
-          ({
-            tokens: Object.values(res?.tokens ?? {}).length,
-            chunk,
-          }) as CombinedChunk
-      )
-    )
-  );
-
-  const tokensOfChunksAdjusted = (
-    await Promise.all(
-      tokensOfChunks.map(async ({ tokens, chunk }) => {
-        if (tokens <= maxTokens) {
-          return { tokens, chunk } as CombinedChunk;
-        }
-
-        const splitBySecondaryDelimiter = chunk.split(delimiterSecondary);
-        const halfIndex = (splitBySecondaryDelimiter.length >> 1) - 1;
-        const firstChunk = splitBySecondaryDelimiter
-          .slice(0, halfIndex)
-          .join('');
-        const lastChunk = splitBySecondaryDelimiter.slice(halfIndex).join('');
-
-        return await Promise.all(
-          [firstChunk, lastChunk].map((chunk) =>
-            requestTokenize({ text: chunk, modelName: modelAdjusted }).then(
-              (res) =>
-                ({
-                  tokens: Object.values(res?.tokens ?? {}).length,
-                  chunk,
-                }) as CombinedChunk
-            )
-          )
-        );
-      })
-    )
-  ).flat(1);
-
-  const combinedChunks: CombinedChunk[] = [{ tokens: 0, chunk: '' }];
-
-  for await (const chunk of tokensOfChunksAdjusted) {
-    const lastChunk = combinedChunks.pop() ?? { tokens: 0, chunk: '' };
-    const extendedCandidateChunk = [lastChunk.chunk, chunk.chunk].join(
-      delimiter
-    );
-
-    const extendedCandidateTokens = await requestTokenize({
-      text: extendedCandidateChunk,
-      modelName: modelAdjusted,
-    }).then((res) => Object.values(res?.tokens ?? {}).length);
-
-    if (extendedCandidateTokens <= maxTokens) {
-      combinedChunks.push({
-        tokens: extendedCandidateTokens,
-        chunk: extendedCandidateChunk,
-      });
-    } else {
-      combinedChunks.push(lastChunk);
-      combinedChunks.push(chunk);
-    }
-  }
-
-  return {
-    tokensOfChunks: tokensOfChunksAdjusted,
-    combinedChunks: combinedChunks.filter(
-      ({ chunk }) => chunk.trim().length > 0
-    ),
+    combinationProceed,
   };
 };
