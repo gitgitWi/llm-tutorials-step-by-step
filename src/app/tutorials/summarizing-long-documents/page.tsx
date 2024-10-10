@@ -178,7 +178,6 @@ export default function SummarizingLongDocumentsPage() {
           <Card>
             <CardHeader>
               <Heading3>Step1. API Token</Heading3>
-              <CardDescription>API 토큰 입력하기</CardDescription>
             </CardHeader>
 
             <CardContent className="gap-y-1">
@@ -204,8 +203,7 @@ export default function SummarizingLongDocumentsPage() {
 
           <Card>
             <CardHeader>
-              <Heading3>Step2. Prepare the Document</Heading3>
-              <CardDescription>장문의 문서 준비</CardDescription>
+              <Heading3>Step2. 문서 준비</Heading3>
             </CardHeader>
 
             <CardContent>
@@ -233,8 +231,11 @@ export default function SummarizingLongDocumentsPage() {
 
           <Card>
             <CardHeader>
-              <Heading3>Step3. Tokenize the Text</Heading3>
-              <CardDescription>Tiktoken 으로 문서 토크나이징</CardDescription>
+              <Heading3>Step3. Tokenizing</Heading3>
+              <CardDescription className="flex flex-col gap-0">
+                <span>- Tiktoken 활용해 텍스트 → 토큰 변환</span>
+                <span>- 현재 Tiktoken 라이브러리에서 OpenAI 모델만 지원</span>
+              </CardDescription>
             </CardHeader>
 
             <CardContent>
@@ -390,7 +391,7 @@ export default function SummarizingLongDocumentsPage() {
           <Card>
             <CardHeader>
               <Heading3>
-                Step. Chunk를 특정 길이(max-token)로 다시 합치기
+                Step5. Chunk를 특정 길이(max-token)로 다시 합치기
               </Heading3>
             </CardHeader>
 
@@ -451,7 +452,7 @@ export default function SummarizingLongDocumentsPage() {
 
           <Card>
             <CardHeader>
-              <Heading3>Step6. Set Prompt</Heading3>
+              <Heading3>Step6. 프롬프트 입력</Heading3>
             </CardHeader>
 
             <CardContent>
