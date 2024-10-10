@@ -3,6 +3,8 @@ import type { ChunkCombinationRequest } from './chunk-combination.types';
 import { fetchChunkCombinations } from './fetch-chunk-combinations';
 import { adjustModelName } from './request-tokenize';
 
+type CombineChunkArgs = Omit<ChunkCombinationRequest, 'maxTokens'>;
+
 const MAX_TOKENS_DEFAULT = 1_000;
 export const GROUP_SIZE = 50;
 
@@ -16,7 +18,7 @@ export const useCombiningChunks = () => {
   const [combinationProceed, setCombinationProceed] = useState(0);
 
   const combineChunks = useCallback(
-    async (args: ChunkCombinationRequest) => {
+    async (args: CombineChunkArgs) => {
       const modelAdjusted = adjustModelName(args.modelName ?? '');
       const delimiterAdjusted =
         args.delimiter === '\\n' ? '\n' : args.delimiter;

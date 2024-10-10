@@ -39,7 +39,7 @@ import { Textarea } from '~/features/ui/textarea';
 import { cn } from '~/lib/utils';
 import { exampleDocument } from './example-document';
 import { GPT_MODEL_NAMES, requestTokenize } from './request-tokenize';
-import { useCombiningChunks } from './use-chunk-combinations';
+import { GROUP_SIZE, useCombiningChunks } from './use-chunk-combinations';
 import { useChunking } from './use-chunking';
 
 // TODO: 스키마 정의
@@ -101,6 +101,7 @@ export default function SummarizingLongDocumentsPage() {
     combineChunks,
     combinedChunks,
     isPendingCombiningChunks,
+    combinationProceed,
   } = useCombiningChunks();
 
   const onSubmit = (data: SummarizeLongDocForm) => {
@@ -416,9 +417,17 @@ export default function SummarizingLongDocumentsPage() {
                   });
                 }}
               >
-                Start
+                Chunk 생성 {isPendingCombiningChunks ? '중..' : '시작'}
                 {isPendingCombiningChunks && (
-                  <LoaderIcon className="animate-spin ml-1" />
+                  <>
+                    {combinationProceed > 0 && (
+                      <p className="ml-1">
+                        ({combinationProceed} /{' '}
+                        {Math.ceil(chunks.length / GROUP_SIZE)})
+                      </p>
+                    )}
+                    <LoaderIcon className="animate-spin ml-1" />
+                  </>
                 )}
               </Button>
 
@@ -428,7 +437,7 @@ export default function SummarizingLongDocumentsPage() {
                     // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                     key={`combined-chunk-${idx}`}
                     className={cn('flex flex-col gap-y-1', {
-                      'border-yellow-400': tokens >= maxTokens * 0.8,
+                      'border-orange-300': tokens >= maxTokens * 0.8,
                       'border-red-400': tokens >= maxTokens * 0.9,
                     })}
                   >
@@ -436,7 +445,7 @@ export default function SummarizingLongDocumentsPage() {
                       className={cn(
                         'bg-neutral-300 rounded-md w-max px-2 py-1 text-xs text-white',
                         {
-                          'text-yellow-400': tokens >= maxTokens * 0.8,
+                          'text-orange-300': tokens >= maxTokens * 0.8,
                           'text-red-600 font-bold': tokens >= maxTokens * 0.9,
                         }
                       )}
