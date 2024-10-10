@@ -6,10 +6,12 @@ import { adjustModelName } from './request-tokenize';
 type CombineChunkArgs = Omit<ChunkCombinationRequest, 'maxTokens'>;
 
 const MAX_TOKENS_DEFAULT = 1_000;
-export const GROUP_SIZE = 50;
+const WINDOW_SIZE_DEFAULT = 50;
 
 export const useCombiningChunks = () => {
   const [maxTokens, setMaxTokens] = useState(MAX_TOKENS_DEFAULT);
+  const [windowSize, setWindowSize] = useState(WINDOW_SIZE_DEFAULT);
+
   const [combinedChunks, setCombinedChunks] = useState<
     { tokens: number; chunk: string }[]
   >([]);
@@ -27,10 +29,10 @@ export const useCombiningChunks = () => {
       setIsPendingCombiningChunks(true);
       setCombinedChunks([]);
 
-      const requestNums = Math.ceil(args.chunks.length / GROUP_SIZE);
+      const requestNums = Math.ceil(args.chunks.length / windowSize);
       const requestGroups = Array.from({ length: requestNums }, (_, i) => {
-        const start = i * GROUP_SIZE;
-        return args.chunks.slice(start, start + GROUP_SIZE);
+        const start = i * windowSize;
+        return args.chunks.slice(start, start + windowSize);
       });
 
       try {
@@ -50,15 +52,17 @@ export const useCombiningChunks = () => {
         setIsPendingCombiningChunks(false);
       }
     },
-    [maxTokens]
+    [maxTokens, windowSize]
   );
 
   return {
+    maxTokens,
+    setMaxTokens,
+    windowSize,
+    setWindowSize,
     combineChunks,
     combinedChunks,
     isPendingCombiningChunks,
-    maxTokens,
-    setMaxTokens,
     combinationProceed,
   };
 };

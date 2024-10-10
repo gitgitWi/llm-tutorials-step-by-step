@@ -26,6 +26,7 @@ import {
 import { Form, FormControl, FormField, FormItem } from '~/features/ui/form';
 import { Heading2, Heading3 } from '~/features/ui/headings';
 import { Input } from '~/features/ui/input';
+import { Label } from '~/features/ui/label';
 import { ResultText } from '~/features/ui/result-text';
 import { ResultTextChunk } from '~/features/ui/result-text-chunk';
 import {
@@ -39,7 +40,7 @@ import { Textarea } from '~/features/ui/textarea';
 import { cn } from '~/lib/utils';
 import { exampleDocument } from './example-document';
 import { GPT_MODEL_NAMES, requestTokenize } from './request-tokenize';
-import { GROUP_SIZE, useCombiningChunks } from './use-chunk-combinations';
+import { useCombiningChunks } from './use-chunk-combinations';
 import { useChunking } from './use-chunking';
 
 // TODO: 스키마 정의
@@ -96,6 +97,8 @@ export default function SummarizingLongDocumentsPage() {
 
   const { setChunkedTexts, chunks } = useChunking();
   const {
+    windowSize,
+    setWindowSize,
     maxTokens,
     setMaxTokens,
     combineChunks,
@@ -397,7 +400,18 @@ export default function SummarizingLongDocumentsPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-2">
+              <Label htmlFor="window-size">
+                Window Size (기본값: 50, API 요청 당 최대 Chunk 개수)
+              </Label>
               <Input
+                id="window-size"
+                type="number"
+                value={windowSize}
+                onChange={(e) => setWindowSize(Number(e.target.value))}
+              />
+              <Label htmlFor="max-tokens">Max Token (기본값: 1,000)</Label>
+              <Input
+                id="max-tokens"
                 type="number"
                 value={maxTokens}
                 onChange={(e) => setMaxTokens(Number(e.target.value))}
@@ -406,8 +420,11 @@ export default function SummarizingLongDocumentsPage() {
                 type="button"
                 disabled={
                   isPendingCombiningChunks ||
-                  form.watch('delimiter').length === 0 ||
-                  form.watch('documentText').length === 0
+                  [
+                    form.watch('delimiter'),
+                    form.watch('documentText'),
+                    chunks,
+                  ].some((val) => val.length === 0)
                 }
                 onClick={() => {
                   combineChunks({
@@ -423,7 +440,7 @@ export default function SummarizingLongDocumentsPage() {
                     {combinationProceed > 0 && (
                       <p className="ml-1">
                         ({combinationProceed} /{' '}
-                        {Math.ceil(chunks.length / GROUP_SIZE)})
+                        {Math.ceil(chunks.length / windowSize)})
                       </p>
                     )}
                     <LoaderIcon className="animate-spin ml-1" />
