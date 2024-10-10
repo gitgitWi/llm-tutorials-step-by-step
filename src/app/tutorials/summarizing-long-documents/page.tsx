@@ -39,8 +39,8 @@ import { Textarea } from '~/features/ui/textarea';
 import { cn } from '~/lib/utils';
 import { exampleDocument } from './example-document';
 import { GPT_MODEL_NAMES, requestTokenize } from './request-tokenize';
+import { useCombiningChunks } from './use-chunk-combinations';
 import { useChunking } from './use-chunking';
-import { useCombiningChunks } from './use-combining-chunks';
 
 // TODO: 스키마 정의
 const SummarizeLongDocFormSchema = object({
